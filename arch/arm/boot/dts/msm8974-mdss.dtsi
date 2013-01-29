@@ -1,0 +1,97 @@
+/* Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/ {
+	qcom,mdss_mdp@fd900000 {
+		compatible = "qcom,mdss_mdp";
+		reg = <0xfd900000 0x22100>,
+			<0xfd924000 0x1000>;
+		reg-names = "mdp_phys", "vbif_phys";
+		interrupts = <0 72 0>;
+		vdd-supply = <&gdsc_mdss>;
+
+		mdss_fb0: qcom,mdss_fb_primary {
+			cell-index = <0>;
+			compatible = "qcom,mdss-fb";
+			qcom,memory-reservation-type = "EBI1";
+			qcom,memory-reservation-size = <0x800000>;
+		};
+
+		mdss_fb1: qcom,mdss_fb_external {
+			cell-index = <1>;
+			compatible = "qcom,mdss-fb";
+		};
+
+		mdss_fb2: qcom,mdss_fb_wfd {
+			cell-index = <2>;
+			compatible = "qcom,mdss-fb";
+		};
+	};
+
+	mdss_dsi: qcom,mdss_dsi@fd922800 {
+		compatible = "qcom,msm-mdss-dsi";
+		reg = <0xfd922800 0x600>,
+			<0xfd8c2000 0x01000>;
+		vdd-supply = <&pm8941_l22>;
+		vdd_io-supply = <&pm8941_l12>;
+		vreg-supply = <&pm8941_l2>;
+	};
+
+	qcom,hdmi_tx@fd922100 {
+		cell-index = <0>;
+		compatible = "qcom,hdmi-tx";
+		reg =	<0xfd922100 0x35C>,
+			<0xfd922500 0x7C>,
+			<0xfc4b8000 0x60F0>;
+		reg-names = "core_physical", "phy_physical", "qfprom_physical";
+
+		hpd-gdsc-supply = <&gdsc_mdss>;
+		hpd-5v-supply = <&pm8941_mvs2>;
+		core-vdda-supply = <&pm8941_l12>;
+		core-vcc-supply = <&pm8941_s3>;
+		qcom,hdmi-tx-supply-names = "hpd-gdsc", "hpd-5v", "core-vdda", "core-vcc";
+		qcom,hdmi-tx-supply-type = <1 1 0 0>;
+		qcom,hdmi-tx-min-voltage-level = <0 0 1800000 1800000>;
+		qcom,hdmi-tx-max-voltage-level = <0 0 1800000 1800000>;
+		qcom,hdmi-tx-op-mode = <0 0 1800000 0>;
+
+		qcom,hdmi-tx-cec = <&msmgpio 31 0>;
+		qcom,hdmi-tx-ddc-clk = <&msmgpio 32 0>;
+		qcom,hdmi-tx-ddc-data = <&msmgpio 33 0>;
+		qcom,hdmi-tx-hpd = <&msmgpio 34 0>;
+		qcom,mdss-fb-map = <&mdss_fb1>;
+		qcom,msm-hdmi-audio-rx {
+			compatible = "qcom,msm-hdmi-audio-codec-rx";
+		};
+	};
+
+	qcom,mdss_wb_panel {
+		compatible = "qcom,mdss_wb";
+		qcom,mdss_pan_res = <1920 1080>;
+		qcom,mdss_pan_bpp = <24>;
+		qcom,mdss-fb-map = <&mdss_fb2>;
+	};
+
+	mdss_edp: qcom,mdss_edp@fd923400 {
+		compatible = "qcom,mdss-edp";
+		reg = <0xfd923400 0x700>,
+			<0xfd8c2000 0x1000>;
+		reg-names = "edp_base", "mmss_cc_base";
+		vdda-supply = <&pm8941_l12>;
+		gpio-panel-en = <&msmgpio 58 0>;
+		gpio-panel-pwm = <&pm8941_gpios 36 0>;
+		qcom,panel-lpg-channel = <7>; /* LPG Channel 8 */
+		qcom,panel-pwm-period = <53>;
+		status = "disable";
+		qcom,mdss-fb-map = <&mdss_fb0>;
+	};
+};

@@ -1,0 +1,49 @@
+Qualcomm MSS QDSP6v5 Peripheral Image Loader
+
+pil-qdsp6v5-mss is a peripheral image loader (PIL) driver. It is used for
+loading QDSP6v5 (Hexagon) firmware images for modem subsystems into memory and
+preparing the subsystem's processor to execute code. It's also responsible for
+shutting down the processor when it's not needed.
+
+Required properties:
+- compatible:	      Must be "qcom,pil-q6v5-mss"
+- reg:		      Pairs of physical base addresses and region sizes of
+		      memory mapped registers.
+- reg-names:	      Names of the bases for the above registers. "qdsp6_base",
+		      "halt_base", "rmb_base", "restart_reg", and
+		      "metadata_base" are expected.
+- interrupts:         The modem watchdog interrupt
+- vdd_mss-supply:     Reference to the regulator that supplies the processor.
+- vdd_mx-supply:      Reference to the regulator that supplies the memory rail.
+- qcom,firmware-name: Base name of the firmware image. Ex. "mdsp"
+- qcom,pil-self-auth: <0> if the hardware does not require self-authenticating
+		      images and self-authentication is not desired;
+		      <1> if the hardware requires self-authenticating images.
+- qcom,is-loadable:   if PIL is required to load the modem image
+- qcom,gpio-err-fatal: GPIO used by the modem to indicate error fatal to the apps.
+- qcom,gpio-force-stop: GPIO used by the apps to force the modem to shutdown.
+
+Example:
+	qcom,mss@fc880000 {
+		compatible = "qcom,pil-q6v5-mss";
+		reg = <0xfc880000 0x100>,
+		      <0xfd485000 0x400>,
+		      <0xfc820000 0x020>,
+		      <0xfc401680 0x004>,
+		      <0x0d1f0000 0x4000>;
+		reg-names = "qdsp6_base", "halt_base", "rmb_base",
+			    "restart_reg", metadata_base";
+		interrupts = <0 24 1>;
+		vdd_mss-supply = <&pm8841_s3>;
+		vdd_mx-supply = <&pm8841_s1>;
+
+		qcom,is-loadable;
+		qcom,firmware-name = "mba";
+		qcom,pil-self-auth = <1>;
+
+		/* GPIO inputs from mss */
+		gpio_err_fatal = <&smp2pgpio_ssr_smp2p_1_in 0 0>;
+
+		/* GPIO output to mss */
+		gpio_force_stop = <&smp2pgpio_ssr_smp2p_1_out 0 0>;
+	};
